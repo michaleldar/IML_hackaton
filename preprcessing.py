@@ -4,9 +4,9 @@ import re
 def string2boolean(string):
     POSITIVE_STRINGS = {"pos", "+", "extensive", "micropapillary variant", "yes", "(+)"}
     NEGATIVE_STRINGS = {"none", "-", "no", "(-)", "neg", "not"}
-    if pd.isna(string) or string in NEGATIVE_STRINGS:
+    if pd.isna(string) or string.lower() in NEGATIVE_STRINGS:
         return 0
-    elif string in POSITIVE_STRINGS:
+    elif string.lower() in POSITIVE_STRINGS:
         return 1
     return string 
 
