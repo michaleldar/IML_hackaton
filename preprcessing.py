@@ -24,6 +24,7 @@ def preprocessing(df: pd.DataFrame):
     df = df.rename(columns={col: re.sub(r'[^\x00-\x7F]+','', col).strip().replace(' ','_').replace('-','') for col in df.columns})
     # Convert Ivi_Lymphovascular_invasion to boolean
     df["Ivi_Lymphovascular_invasion"] = df["Ivi_Lymphovascular_invasion"].apply(string2boolean)
+    df["Histopatological degree"] = df["Histopatological degree"].apply(histopatological_degree_to_int)
 
 
 if __name__ == "__main__":
