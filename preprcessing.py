@@ -1,4 +1,5 @@
 import pandas as pd
+import re
 
 def string2boolean(string):
     POSITIVE_STRINGS = {"pos", "+", "extensive", "micropapillary variant", "yes", "(+)"}
@@ -11,6 +12,7 @@ def string2boolean(string):
 
 
 def preprocessing(df: pd.DataFrame):
+    df = df.rename(columns={col: re.sub(r'[^\x00-\x7F]+','', col).strip().replace(' ','_').replace('-','') for col in df.columns})
     # Convert Ivi_Lymphovascular_invasion to boolean
     df["Ivi_Lymphovascular_invasion"] = df["Ivi_Lymphovascular_invasion"].apply(string2boolean)
 
