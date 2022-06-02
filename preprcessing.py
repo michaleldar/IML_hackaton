@@ -66,6 +66,12 @@ def tumor_mark(string):
         return len(values) / 2
 
 def preprocessing(df: pd.DataFrame):
+
+    # Remove duplicate entries - leave one row per patient and date
+    df = pd.get_dummies(df, prefix=["Form_Name"])
+    df = df.groupby(by=['Diagnosis_date', 'idhushed_internalpatientid']).first()
+
+
     df = df.rename(columns={col: re.sub(r'[^\x00-\x7F]+','', col).strip().replace(' ','_').replace('-','') for col in df.columns})
     # Convert Ivi_Lymphovascular_invasion to boolean
     df["Ivi_Lymphovascular_invasion"] = df["Ivi_Lymphovascular_invasion"].apply(string2boolean)
