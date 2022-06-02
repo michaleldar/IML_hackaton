@@ -50,6 +50,21 @@ def clean_stage(string):
     return int(re.sub("[a-zA-Z]+", "", string))
 
 
+def tumor_mark(string):
+    values = ["tx", "tis", "t0", "t1", "t1mic", "t1a", "t1b", "t1c", "t1d", "t2", "t2a", "t2b", "t2c",
+              "t2d", "t3", "t3a", "t3b", "t3c", "t3d", "t4", "t4a", "t4b", "t4c", "t4d"]
+    string = string.lower()
+    for idx, val in enumerate(values):
+        if string == val:
+            return idx
+    for idx, val in enumerate(values):
+        if string in val or val in string:
+            return idx
+    if "not" in string:
+        return -1
+    else:
+        return len(values) / 2
+
 def preprocessing(df: pd.DataFrame):
 
     # Standardize column names
@@ -75,6 +90,8 @@ def preprocessing(df: pd.DataFrame):
 
     df["KI67_protein"] = df["KI67_protein"].apply(handle_ki67)
     df['KI67_protein'].fillna((df['KI67_protein'].mean()), inplace=True)
+
+    df["T -Tumor mark (TNM)"] = df["T -Tumor mark (TNM)"].apply(tumor_mark)
 
 if __name__ == "__main__":
     preprocessing(pd.read_csv("data/train.feats.csv"))
