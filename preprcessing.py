@@ -80,6 +80,22 @@ def lymph_nodes_mark(string):
             last_idx = idx
     return last_idx
 
+
+def metastases_mark(string):
+    values = ["m0", "mo", "m1", "m1a", "m1b"]
+    if not string:
+        return -1
+    string = string.lower()
+    for idx, val in enumerate(values):
+        if string == val:
+            return idx
+    last_idx = -1
+    for idx, val in enumerate(values):
+        if val in string:
+            last_idx = idx
+    return last_idx
+
+
 def preprocessing(df: pd.DataFrame):
 
     # Standardize column names
@@ -108,6 +124,7 @@ def preprocessing(df: pd.DataFrame):
 
     df["T_Tumor_mark_(TNM)"] = df["T_Tumor_mark_(TNM)"].apply(tumor_mark)
     df["N_lymph_nodes_mark_(TNM)"] = df["N_lymph_nodes_mark_(TNM)"].apply(lymph_nodes_mark)
+    df["M_metastases_mark_(TNM)"] = df["M_metastases_mark_(TNM)"].apply(metastases_mark)
 
 if __name__ == "__main__":
     preprocessing(pd.read_csv("data/train.feats.csv"))
