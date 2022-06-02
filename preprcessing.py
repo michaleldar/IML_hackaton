@@ -91,7 +91,7 @@ def preprocessing(df: pd.DataFrame):
     df["KI67_protein"] = df["KI67_protein"].apply(handle_ki67)
     df['KI67_protein'].fillna((df['KI67_protein'].mean()), inplace=True)
 
-    df["T_-Tumor_mark_(TNM)"] = df["T_-Tumor_mark_(TNM)"].apply(tumor_mark)
+    df["T_Tumor_mark_(TNM)"] = df["T_Tumor_mark_(TNM)"].apply(tumor_mark)
 
 if __name__ == "__main__":
     preprocessing(pd.read_csv("data/train.feats.csv"))
