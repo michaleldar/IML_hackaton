@@ -130,7 +130,7 @@ def BIOPSY_surgery(string):
 
 
 def LUMPECTOMY_surgery(string):
-    if "lumpectomy" in string.lower():
+    if "lumpectomy" in string.lower() or "excision" in string.lower() or "exc." in string.lower():
         return 1
     return 0
 
@@ -190,11 +190,26 @@ def preprocessing(df: pd.DataFrame):
     df["M_metastases_mark_(TNM)"] = df["M_metastases_mark_(TNM)"].apply(metastases_mark)
 
     # first surgery name
-    df["BIOPSY_surgery"] = df["Surgery_name1"].apply(BIOPSY_surgery)
-    df["LUMPECTOMY_surgery"] = df["Surgery_name1"].apply(LUMPECTOMY_surgery)
-    df["MASTECTOMY_surgery"] = df["Surgery_name1"].apply(MASTECTOMY_surgery)
-    df["QUADRANTECTOMY_surgery"] = df["Surgery_name1"].apply(QUADRANTECTOMY_surgery)
-    df["OOPHORECTOMY_surgery"] = df["Surgery_name1"].apply(OOPHORECTOMY_surgery)
+    df["BIOPSY_surgery_1"] = df["Surgery_name1"].apply(BIOPSY_surgery)
+    df["LUMPECTOMY_surgery_1"] = df["Surgery_name1"].apply(LUMPECTOMY_surgery)
+    df["MASTECTOMY_surgery_1"] = df["Surgery_name1"].apply(MASTECTOMY_surgery)
+    df["QUADRANTECTOMY_surgery_1"] = df["Surgery_name1"].apply(QUADRANTECTOMY_surgery)
+    df["OOPHORECTOMY_surgery_1"] = df["Surgery_name1"].apply(OOPHORECTOMY_surgery)
+
+    # second surgery name
+    df["BIOPSY_surgery_2"] = df["Surgery_name2"].apply(BIOPSY_surgery)
+    df["LUMPECTOMY_surgery_2"] = df["Surgery_name2"].apply(LUMPECTOMY_surgery)
+    df["MASTECTOMY_surgery_2"] = df["Surgery_name2"].apply(MASTECTOMY_surgery)
+    df["QUADRANTECTOMY_surgery_2"] = df["Surgery_name2"].apply(QUADRANTECTOMY_surgery)
+    df["OOPHORECTOMY_surgery_2"] = df["Surgery_name2"].apply(OOPHORECTOMY_surgery)
+
+    # third surgery name
+    df["BIOPSY_surgery_3"] = df["Surgery_name3"].apply(BIOPSY_surgery)
+    df["LUMPECTOMY_surgery_3"] = df["Surgery_name3"].apply(LUMPECTOMY_surgery)
+    df["MASTECTOMY_surgery_3"] = df["Surgery_name3"].apply(MASTECTOMY_surgery)
+    df["QUADRANTECTOMY_surgery_3"] = df["Surgery_name3"].apply(QUADRANTECTOMY_surgery)
+    df["OOPHORECTOMY_surgery_3"] = df["Surgery_name3"].apply(OOPHORECTOMY_surgery)
+
 
 
 
