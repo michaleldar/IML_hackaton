@@ -2,14 +2,14 @@ import pandas as pd
 import re
 
 
-def string2boolean(string):
-    POSITIVE_STRINGS = {"pos", "+", "extensive", "micropapillary variant", "yes", "(+)"}
-    NEGATIVE_STRINGS = {"none", "-", "no", "(-)", "neg", "not"}
-    if pd.isna(string) or string.lower() in NEGATIVE_STRINGS:
+def string2boolean(string, default=0):
+    POSITIVE_STRINGS = {"pos", "+", "extensive", "micropapillary variant", "yes", "(+)", "חיובי", "jhuch"}
+    NEGATIVE_STRINGS = {"none", "-", "no", "(-)", "neg", "not", "שלילי", "akhkh"}
+    if pd.isna(string) or string.lower() in NEGATIVE_STRINGS or any(s in string.lower() for s in NEGATIVE_STRINGS):
         return 0
-    elif string.lower() in POSITIVE_STRINGS:
+    elif string.lower() in POSITIVE_STRINGS or any(s in string.lower() for s in POSITIVE_STRINGS):
         return 1
-    return string 
+    return default 
 
 
 def is_date(string, fuzzy=False):
@@ -140,6 +140,8 @@ def preprocessing(df: pd.DataFrame):
     df["Histopatological_degree"] = df["Histopatological_degree"].apply(histopatological_degree_to_int)
     # Num of surgeries in int (Na = 0)
     df['Surgery_sum'] = df['Surgery_sum'].fillna(0)
+
+    df["Her2"] = df["Her2"].apply(string2boolean)
 
     df = df[(df.Age > 0)]
     df = df[(df.Age < 120)]
