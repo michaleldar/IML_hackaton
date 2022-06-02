@@ -4,3 +4,6 @@ pandas
 tqdm
 docopt
 plotly
+scikit-multilearn
+arff
+requests
