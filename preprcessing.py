@@ -99,7 +99,6 @@ def metastases_mark(string):
     return last_idx
 
 
-
 def histological_diagnosis_invasive(string):
     words = string.lower().split(" ")
     words = [w.replace(',', '') for w in words]
@@ -121,6 +120,36 @@ def histological_diagnosis_noninvasive(string):
         if "nos" in words:
             return 0.5
         return 0
+    return 0
+
+
+def BIOPSY_surgery(string):
+    if "biopsy" in string.lower():
+        return 1
+    return 0
+
+
+def LUMPECTOMY_surgery(string):
+    if "lumpectomy" in string.lower() or "excision" in string.lower() or "exc." in string.lower():
+        return 1
+    return 0
+
+
+def MASTECTOMY_surgery(string):
+    if "mastectomy" in string.lower():
+        return 1
+    return 0
+
+
+def QUADRANTECTOMY_surgery(string):
+    if "quadrantectomy" in string.lower():
+        return 1
+    return 0
+
+
+def OOPHORECTOMY_surgery(string):
+    if "oophorectomy" in string.lower():
+        return 1
     return 0
 
 
@@ -164,6 +193,28 @@ def preprocessing(df: pd.DataFrame):
     df['Surgery_date1_diff'] = (df['Surgery_date1'] - df['Diagnosis_date']).dt.days
     df['Surgery_date2_diff'] = (df['Surgery_date2'] - df['Diagnosis_date']).dt.days
     df['Surgery_date3_diff'] = (df['Surgery_date3'] - df['Diagnosis_date']).dt.days
+    # first surgery name
+    df["BIOPSY_surgery_1"] = df["Surgery_name1"].apply(BIOPSY_surgery)
+    df["LUMPECTOMY_surgery_1"] = df["Surgery_name1"].apply(LUMPECTOMY_surgery)
+    df["MASTECTOMY_surgery_1"] = df["Surgery_name1"].apply(MASTECTOMY_surgery)
+    df["QUADRANTECTOMY_surgery_1"] = df["Surgery_name1"].apply(QUADRANTECTOMY_surgery)
+    df["OOPHORECTOMY_surgery_1"] = df["Surgery_name1"].apply(OOPHORECTOMY_surgery)
+
+    # second surgery name
+    df["BIOPSY_surgery_2"] = df["Surgery_name2"].apply(BIOPSY_surgery)
+    df["LUMPECTOMY_surgery_2"] = df["Surgery_name2"].apply(LUMPECTOMY_surgery)
+    df["MASTECTOMY_surgery_2"] = df["Surgery_name2"].apply(MASTECTOMY_surgery)
+    df["QUADRANTECTOMY_surgery_2"] = df["Surgery_name2"].apply(QUADRANTECTOMY_surgery)
+    df["OOPHORECTOMY_surgery_2"] = df["Surgery_name2"].apply(OOPHORECTOMY_surgery)
+
+    # third surgery name
+    df["BIOPSY_surgery_3"] = df["Surgery_name3"].apply(BIOPSY_surgery)
+    df["LUMPECTOMY_surgery_3"] = df["Surgery_name3"].apply(LUMPECTOMY_surgery)
+    df["MASTECTOMY_surgery_3"] = df["Surgery_name3"].apply(MASTECTOMY_surgery)
+    df["QUADRANTECTOMY_surgery_3"] = df["Surgery_name3"].apply(QUADRANTECTOMY_surgery)
+    df["OOPHORECTOMY_surgery_3"] = df["Surgery_name3"].apply(OOPHORECTOMY_surgery)
+
+
 
 
 if __name__ == "__main__":
