@@ -70,7 +70,7 @@ def preprocessing(df: pd.DataFrame):
     # Standardize column names
     df = df.rename(columns={col: re.sub(r'[^\x00-\x7F]+','', col).strip().replace(' ','_').replace('-','') for col in df.columns})
     # Remove duplicate entries - leave one row per patient and date
-    df = pd.get_dummies(df, prefix=["Form_Name"])
+    df = pd.get_dummies(df, columns=["Form_Name"])
     df = df.groupby(by=['Diagnosis_date', 'idhushed_internalpatientid']).first()
 
 
