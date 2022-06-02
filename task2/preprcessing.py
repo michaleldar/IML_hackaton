@@ -265,9 +265,9 @@ def preprocessing(df: pd.DataFrame, labels: pd.DataFrame):
     df["M_metastases_mark_(TNM)"] = df["M_metastases_mark_(TNM)"].apply(metastases_mark)
 
     df[['Surgery_date1', 'Surgery_date2', 'Surgery_date3', 'Diagnosis_date']] = df[['Surgery_date1','Surgery_date2', 'Surgery_date3', 'Diagnosis_date']].apply(pd.to_datetime)
-    df['Surgery_date1_diff'] = (df['Surgery_date1'] - df['Diagnosis_date']).dt.days
-    df['Surgery_date2_diff'] = (df['Surgery_date2'] - df['Diagnosis_date']).dt.days
-    df['Surgery_date3_diff'] = (df['Surgery_date3'] - df['Diagnosis_date']).dt.days
+    df['Surgery_date1_diff'] = (df['Diagnosis_date'] - df['Surgery_date1']).dt.days
+    df['Surgery_date2_diff'] = (df['Diagnosis_date'] - df['Surgery_date2']).dt.days
+    df['Surgery_date3_diff'] = (df['Diagnosis_date'] - df['Surgery_date3']).dt.days
     # first surgery name
     df["BIOPSY_surgery_1"] = df["Surgery_name1"].apply(BIOPSY_surgery)
     df["LUMPECTOMY_surgery_1"] = df["Surgery_name1"].apply(LUMPECTOMY_surgery)
