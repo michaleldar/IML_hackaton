@@ -36,7 +36,6 @@ def handle_ki67(string):
     return max(nums)
 
 
-
 def histopatological_degree_to_int(degree: str):
     values = ["null", "gx", "g1", "g2", "g3", "g4"]
     for idx, val in enumerate(values):
