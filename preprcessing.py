@@ -58,10 +58,27 @@ def tumor_mark(string):
     for idx, val in enumerate(values):
         if string == val:
             return idx
+    last_idx = -1
     for idx, val in enumerate(values):
-        if string in val or val in string:
+        if val in string:
+            last_idx = idx
+    return last_idx
+
+
+def lymph_nodes_mark(string):
+    values = ["n", "n1", "n1a", "n1b", "n1c", "n1d", "n2", "n2a", "n2b", "n2c", "n2d", "n3", "n3a",
+              "n3b", "n3c", "n3d", "n3d", "n4", "n4a", "n4b", "n4c", "n4d"]
+    if not string:
+        return -1
+    string = string.lower()
+    for idx, val in enumerate(values):
+        if string == val:
             return idx
-    return -1
+    last_idx = -1
+    for idx, val in enumerate(values):
+        if val in string:
+            last_idx = idx
+    return last_idx
 
 def preprocessing(df: pd.DataFrame):
 
@@ -90,6 +107,7 @@ def preprocessing(df: pd.DataFrame):
     df['KI67_protein'].fillna((df['KI67_protein'].mean()), inplace=True)
 
     df["T_Tumor_mark_(TNM)"] = df["T_Tumor_mark_(TNM)"].apply(tumor_mark)
+    df["N_lymph_nodes_mark_(TNM)"] = df["N_lymph_nodes_mark_(TNM)"].apply(lymph_nodes_mark)
 
 if __name__ == "__main__":
     preprocessing(pd.read_csv("data/train.feats.csv"))
