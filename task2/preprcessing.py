@@ -45,6 +45,19 @@ def is_date(string, fuzzy=False):
         return False
 
 
+def date_diff(str1, str2):
+    if str1 is None or str2 is None:
+        return -1
+    from dateutil.parser import parse
+    try:
+        dt1 = parse(str1, fuzzy=False)
+        dt2 = parse(str2, fuzzy=False)
+        return abs((dt1 - dt2).days)
+
+    except ValueError:
+        return -1
+
+
 def handle_ki67(string):
     if type(string) != str: return string
     if is_date(string): return pd.NA
@@ -264,10 +277,10 @@ def preprocessing(df: pd.DataFrame, labels: pd.DataFrame):
     df["N_lymph_nodes_mark_(TNM)"] = df["N_lymph_nodes_mark_(TNM)"].apply(lymph_nodes_mark)
     df["M_metastases_mark_(TNM)"] = df["M_metastases_mark_(TNM)"].apply(metastases_mark)
 
-    df[['Surgery_date1', 'Surgery_date2', 'Surgery_date3', 'Diagnosis_date']] = df[['Surgery_date1','Surgery_date2', 'Surgery_date3', 'Diagnosis_date']].apply(pd.to_datetime)
-    df['Surgery_date1_diff'] = (df['Surgery_date1'] - df['Diagnosis_date']).dt.days
-    df['Surgery_date2_diff'] = (df['Surgery_date2'] - df['Diagnosis_date']).dt.days
-    df['Surgery_date3_diff'] = (df['Surgery_date3'] - df['Diagnosis_date']).dt.days
+    df['Surgery_date1_diff'] = df.apply(lambda x: date_diff(x.Surgery_date1, x.Diagnosis_date), axis=1)
+    df['Surgery_date2_diff'] = df.apply(lambda x: date_diff(x.Surgery_date2, x.Diagnosis_date), axis=1)
+    df['Surgery_date3_diff'] = df.apply(lambda x: date_diff(x.Surgery_date3, x.Diagnosis_date), axis=1)
+
     # first surgery name
     df["BIOPSY_surgery_1"] = df["Surgery_name1"].apply(BIOPSY_surgery)
     df["LUMPECTOMY_surgery_1"] = df["Surgery_name1"].apply(LUMPECTOMY_surgery)
