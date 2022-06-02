@@ -321,5 +321,3 @@ def preprocessing(df: pd.DataFrame, labels: pd.DataFrame):
 
 if __name__ == "__main__":
     X, y = preprocessing(pd.read_csv("data/train.feats.csv"), pd.read_csv("data/train.labels.0.csv"))
-    train_X, train_y, test_X, test_y = train_test_split(X,y,test_size=0.5, random_state=42)
-    print(1)

@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 import numpy as np
 
-from task2.preprcessing import preprocessing
+from preprcessing import preprocessing
 
 
 def vizualization_for_features(X: pd.DataFrame):
@@ -16,9 +16,8 @@ def vizualization_for_features(X: pd.DataFrame):
 
 
 if __name__ == '__main__':
-    features = pd.read_csv("../data/train.feats.csv")
-    y = pd.read_csv("../data/train.labels.0.csv")
-    train_X, train_y, test_x, test_y = train_test_split(features, y)
+    X, y = preprocessing(pd.read_csv("data/train.feats.csv"), pd.read_csv("data/train.labels.0.csv"))
+    train_X, test_X, train_y, test_y = train_test_split(X,y,test_size=0.5, random_state=42)
 
     # vizualization_for_features(train_X)
     preprocessing(train_X)
