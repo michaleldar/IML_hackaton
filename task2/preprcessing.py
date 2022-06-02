@@ -17,7 +17,8 @@ LOCATIONS = {'ADR - Adrenals',
 
 one_hot_cols = ['Hospital', 'Margin_Type']
 cols_to_drop = ['Margin_Type_without', 'User_Name', 'Side', 'Tumor_depth', 'Nodes_exam',
-                'surgery_before_or_afterActivity_date', 'surgery_before_or_afterActual_activity', "Histological_diagnosis"]
+                'surgery_before_or_afterActivity_date', 'surgery_before_or_afterActual_activity', "Histological_diagnosis",
+                "Diagnosis_date", "Surgery_date1", "Surgery_date2", "Surgery_date3", "Surgery_name1", "Surgery_name2", "Surgery_name3"]
 
 def string2boolean(string, default=0):
     POSITIVE_STRINGS = {"pos", "+", "extensive", "micropapillary variant", "yes", "(+)", "חיובי", "jhuch"}

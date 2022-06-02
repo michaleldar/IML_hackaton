@@ -38,11 +38,13 @@ def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = "."):
             std_feature = np.std(X[feature])
             std_y = np.std(y[label])
             corr = cov / std_feature / std_y
-            go.Figure([go.Scatter(x = X[feature], y=y, mode= "markers")])\
-                .update_layout(
-                title = f"Price as function of {feature}, {label}, The correlation is: {corr}",
-                yaxis_title="Price",
-                xaxis_title= "feature values").show()
+            if np.abs(corr) <= 0.0005:
+                print(f"Correlation between feature {feature} and label {label} is: {corr}")
+            # go.Figure([go.Scatter(x = X[feature], y=y, mode= "markers")])\
+            #     .update_layout(
+            #     title = f"Price as function of {feature}, {label}, The correlation is: {corr}",
+            #     yaxis_title="Price",
+            #     xaxis_title= "feature values").show()
 
 
 if __name__ == '__main__':
