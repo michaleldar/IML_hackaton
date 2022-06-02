@@ -86,9 +86,9 @@ if __name__ == '__main__':
     empty = ['[]'] * y_gold.shape[0]
     pd.DataFrame(empty).to_csv('./y_empty.csv', header=False, index=False)
 
-    # X, y = preprocessing(pd.read_csv("../data/train.feats.csv"), pd.read_csv("../data/train.labels.1.csv"), multi_label=False)
-    # train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.5, random_state=42)
-    # lr = LinearRegression()
-    # lr.fit(train_X, train_y)
-    # lr.predict(test_X)
-    # print(lr.score(test_X, test_y))
+    X, y = preprocessing_train(pd.read_csv("../data/train.feats.csv"), pd.read_csv("../data/train.labels.1.csv"), multi_label=False)
+    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.5, random_state=42)
+    lr = LinearRegression()
+    lr.fit(train_X, train_y)
+    pred = lr.predict(test_X)
+    print(sklearn.metrics.mean_squared_error(pred, test_y))

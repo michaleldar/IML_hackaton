@@ -223,7 +223,7 @@ def string2set(string):
     lst = ast.literal_eval(string)
     return set(lst)
 
-def preprocessing_train(df: pd.DataFrame, labels: pd.DataFrame):
+def preprocessing_train(df: pd.DataFrame, labels: pd.DataFrame, multi_label=True):
 
     # Standardize column names
     df = df.rename(columns={col: re.sub(r'[^\x00-\x7F]+','', col).strip().replace(' ','_').replace('-','') for col in df.columns})
@@ -243,22 +243,33 @@ def preprocessing_train(df: pd.DataFrame, labels: pd.DataFrame):
         if "Form_Name" in col:
             df[col] = np.where(df[col] == 0, None, 1)
 
-    df["Location_of_distal_metastases"] = labels["Location_of_distal_metastases"]
+    if multi_label:
+        df["Location_of_distal_metastases"] = labels["Location_of_distal_metastases"]
+    else:
+        df["Tumor_size"] = labels["Tumor_size"]
     df = df.groupby(by=['idhushed_internalpatientid']).first()
-    labels = df["Location_of_distal_metastases"]
+
+    if multi_label:
+        labels = df["Location_of_distal_metastases"]
+    else:
+        labels = df["Tumor_size"]
 
     for col in df.columns:
         if "Form_Name" in col:
             df[col] = np.where(df[col] is None, 0, 1)
 
-    # Turn labels into matrix
-    labels = labels.apply(string2set)
-    labels_mat = pd.DataFrame()
-    for loc in LOCATIONS:
-        indicator = lambda x: 1 if loc in x else 0
-        labels_mat[loc] = labels.apply(indicator)
+    if multi_label:
+        # Turn labels into matrix
+        labels = labels.apply(string2set)
+        labels_mat = pd.DataFrame()
+        for loc in LOCATIONS:
+            indicator = lambda x: 1 if loc in x else 0
+            labels_mat[loc] = labels.apply(indicator)
 
-    df.drop(["Location_of_distal_metastases"], inplace=True, axis=1)
+    if multi_label:
+        df.drop(["Location_of_distal_metastases"], inplace=True, axis=1)
+    else:
+        df.drop(["Tumor_size"], inplace=True, axis=1)
 
     # Convert Ivi_Lymphovascular_invasion to boolean
     df["Ivi_Lymphovascular_invasion"] = df["Ivi_Lymphovascular_invasion"].apply(string2boolean)
@@ -340,7 +351,9 @@ def preprocessing_train(df: pd.DataFrame, labels: pd.DataFrame):
     df['pr'] = df['pr'].apply(clean_er_pr)
     df.drop(cols_to_drop, axis=1, inplace=True)
 
-    return df, labels_mat
+    if multi_label:
+        return df, labels_mat
+    return df, labels
 
 
 # def preprocessing_test_groupby(df: pd.DataFrame):
