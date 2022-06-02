@@ -1,6 +1,7 @@
 import pandas as pd
 import re
 
+
 def string2boolean(string):
     POSITIVE_STRINGS = {"pos", "+", "extensive", "micropapillary variant", "yes", "(+)"}
     NEGATIVE_STRINGS = {"none", "-", "no", "(-)", "neg", "not"}
@@ -9,6 +10,7 @@ def string2boolean(string):
     elif string.lower() in POSITIVE_STRINGS:
         return 1
     return string 
+
 
 def is_date(string, fuzzy=False):
     """
@@ -43,6 +45,7 @@ def histopatological_degree_to_int(degree: str):
             return idx
     return 0
 
+
 def clean_stage(string):
     if string == 'LA': return -1
     if string == 'Not yet Established': return 0
@@ -63,6 +66,31 @@ def tumor_mark(string):
             return idx
     return -1
 
+
+def histological_diagnosis_invasive(string):
+    words = string.lower().split(" ")
+    words = [w.replace(',', '') for w in words]
+    if "carcinoma" in string.lower():
+        if "in situ" in words or "intraductal" in words:
+            return 0
+        if "nos" in words:
+            return 0.5
+        return 1
+    return 0
+
+
+def histological_diagnosis_noninvasive(string):
+    words = string.lower().split(" ")
+    words = [w.replace(',', '') for w in words]
+    if "carcinoma" in string.lower():
+        if "in situ" in words or "intraductal" in words:
+            return 1
+        if "nos" in words:
+            return 0.5
+        return 0
+    return 0
+
+
 def preprocessing(df: pd.DataFrame):
 
     # Standardize column names
@@ -71,6 +99,7 @@ def preprocessing(df: pd.DataFrame):
     df = pd.get_dummies(df, columns=["Form_Name"])
     df = df.groupby(by=['Diagnosis_date', 'idhushed_internalpatientid']).first()
 
+    columns_to_remove = ["Histological_diagnosis"]
 
     # Convert Ivi_Lymphovascular_invasion to boolean
     df["Ivi_Lymphovascular_invasion"] = df["Ivi_Lymphovascular_invasion"].apply(string2boolean)
@@ -90,6 +119,9 @@ def preprocessing(df: pd.DataFrame):
     df['KI67_protein'].fillna((df['KI67_protein'].mean()), inplace=True)
 
     df["T_Tumor_mark_(TNM)"] = df["T_Tumor_mark_(TNM)"].apply(tumor_mark)
+    df["Histological_diagnosis_invasive"] = df["Histological_diagnosis"].apply(histological_diagnosis_invasive)
+    df["Histological_diagnosis_noninvasive"] = df["Histological_diagnosis"].apply(histological_diagnosis_noninvasive)
+
 
 if __name__ == "__main__":
     preprocessing(pd.read_csv("data/train.feats.csv"))
