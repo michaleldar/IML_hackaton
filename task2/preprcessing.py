@@ -1,6 +1,19 @@
 import pandas as pd
 import re
+import ast
+from sklearn.model_selection import train_test_split
 
+LOCATIONS = {'ADR - Adrenals',
+ 'BON - Bones',
+ 'BRA - Brain',
+ 'HEP - Hepatic',
+ 'LYM - Lymph nodes',
+ 'MAR - Bone Marrow',
+ 'OTH - Other',
+ 'PER - Peritoneum',
+ 'PLE - Pleura',
+ 'PUL - Pulmonary',
+ 'SKI - Skin'}
 
 one_hot_cols = ['Hospital', 'Margin_Type']
 cols_to_drop = ['Margin_Type_without', 'User_Name', 'Side', 'Tumor_depth', 'Nodes_exam',
@@ -189,11 +202,15 @@ def clean_er_pr(string):
     if floats[0] > 0: return 1
     return 0
 
+def string2set(string):
+    lst = ast.literal_eval(string)
+    return set(lst)
 
-def preprocessing(df: pd.DataFrame):
+def preprocessing(df: pd.DataFrame, labels: pd.DataFrame):
 
     # Standardize column names
     df = df.rename(columns={col: re.sub(r'[^\x00-\x7F]+','', col).strip().replace(' ','_').replace('-','') for col in df.columns})
+    labels = labels.rename(columns={col: re.sub(r'[^\x00-\x7F]+','', col).strip().replace(' ','_').replace('-','') for col in labels.columns})
     # Remove duplicate entries - leave one row per patient and date
 
     form_name_map = {'אנמנזה סיעודית': 'nursing_anamnesis',
@@ -205,7 +222,19 @@ def preprocessing(df: pd.DataFrame):
     df["Form_Name"] = df["Form_Name"].map(form_name_map)
     df = pd.get_dummies(df, columns=["Form_Name"])
 
+    df["Location_of_distal_metastases"] = labels["Location_of_distal_metastases"]
     df = df.groupby(by=['idhushed_internalpatientid']).first()
+    labels = df["Location_of_distal_metastases"]
+
+    # Turn labels into matrix
+    labels = labels.apply(string2set)
+    labels_mat = pd.DataFrame()
+    for loc in LOCATIONS:
+        indicator = lambda x: 1 if loc in x else 0
+        labels_mat[loc] = labels.apply(indicator)
+
+    df.drop(["Location_of_distal_metastases"], inplace=True, axis=1)
+
 
     columns_to_remove = ["Histological_diagnosis", "Form_Name"]
 
@@ -287,6 +316,10 @@ def preprocessing(df: pd.DataFrame):
     df['er'] = df['er'].apply(clean_er_pr)
     df['pr'] = df['pr'].apply(clean_er_pr)
 
+    return df, labels_mat
+
 
 if __name__ == "__main__":
-    preprocessing(pd.read_csv("../data/train.feats.csv"))
+    X, y = preprocessing(pd.read_csv("data/train.feats.csv"), pd.read_csv("data/train.labels.0.csv"))
+    train_X, train_y, test_X, test_y = train_test_split(X,y,test_size=0.5, random_state=42)
+    print(1)
