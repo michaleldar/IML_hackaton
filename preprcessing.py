@@ -53,6 +53,7 @@ def clean_stage(string):
 def tumor_mark(string):
     values = ["tx", "tis", "t0", "t1", "t1mic", "t1a", "t1b", "t1c", "t1d", "t2", "t2a", "t2b", "t2c",
               "t2d", "t3", "t3a", "t3b", "t3c", "t3d", "t4", "t4a", "t4b", "t4c", "t4d"]
+    if string is None: return -1
     string = string.lower()
     for idx, val in enumerate(values):
         if string == val:
@@ -60,10 +61,7 @@ def tumor_mark(string):
     for idx, val in enumerate(values):
         if string in val or val in string:
             return idx
-    if "not" in string:
-        return -1
-    else:
-        return len(values) / 2
+    return -1
 
 def preprocessing(df: pd.DataFrame):
 
