@@ -17,7 +17,7 @@ LOCATIONS = {'ADR - Adrenals',
 
 one_hot_cols = ['Hospital', 'Margin_Type']
 cols_to_drop = ['Margin_Type_without', 'User_Name', 'Side', 'Tumor_depth', 'Nodes_exam',
-                'surgery_before_or_afterActivity_date', 'surgery_before_or_afterActual_activity']
+                'surgery_before_or_afterActivity_date', 'surgery_before_or_afterActual_activity', "Histological_diagnosis", "Form_Name"]
 
 def string2boolean(string, default=0):
     POSITIVE_STRINGS = {"pos", "+", "extensive", "micropapillary variant", "yes", "(+)", "חיובי", "jhuch"}
@@ -248,9 +248,6 @@ def preprocessing(df: pd.DataFrame, labels: pd.DataFrame):
 
     df.drop(["Location_of_distal_metastases"], inplace=True, axis=1)
 
-
-    columns_to_remove = ["Histological_diagnosis", "Form_Name"]
-
     # Convert Ivi_Lymphovascular_invasion to boolean
     df["Ivi_Lymphovascular_invasion"] = df["Ivi_Lymphovascular_invasion"].apply(string2boolean)
     # Convert Histopatological degree to int (greater should be more correlated to cancer)
@@ -328,6 +325,7 @@ def preprocessing(df: pd.DataFrame, labels: pd.DataFrame):
     # ER and PR
     df['er'] = df['er'].apply(clean_er_pr)
     df['pr'] = df['pr'].apply(clean_er_pr)
+    df.drop(cols_to_drop, axis=1, inplace=True)
 
     return df, labels_mat
 
