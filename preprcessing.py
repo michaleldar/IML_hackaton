@@ -151,12 +151,13 @@ def preprocessing(df: pd.DataFrame):
     df["KI67_protein"] = df["KI67_protein"].apply(handle_ki67)
     df['KI67_protein'].fillna((df['KI67_protein'].mean()), inplace=True)
 
-    df["T_Tumor_mark_(TNM)"] = df["T_Tumor_mark_(TNM)"].apply(tumor_mark)
     df["Histological_diagnosis_invasive"] = df["Histological_diagnosis"].apply(histological_diagnosis_invasive)
     df["Histological_diagnosis_noninvasive"] = df["Histological_diagnosis"].apply(histological_diagnosis_noninvasive)
 
+    df["T_Tumor_mark_(TNM)"] = df["T_Tumor_mark_(TNM)"].apply(tumor_mark)
     df["N_lymph_nodes_mark_(TNM)"] = df["N_lymph_nodes_mark_(TNM)"].apply(lymph_nodes_mark)
     df["M_metastases_mark_(TNM)"] = df["M_metastases_mark_(TNM)"].apply(metastases_mark)
+
 
 if __name__ == "__main__":
     preprocessing(pd.read_csv("data/train.feats.csv"))
