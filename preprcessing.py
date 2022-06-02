@@ -10,6 +10,32 @@ def string2boolean(string):
         return 1
     return string 
 
+def is_date(string, fuzzy=False):
+    """
+    Return whether the string can be interpreted as a date.
+
+    :param string: str, string to check for date
+    :param fuzzy: bool, ignore unknown tokens in string if True
+    """
+    from dateutil.parser import parse
+    try:
+        parse(string, fuzzy=fuzzy)
+        return True
+
+    except ValueError:
+        return False
+
+
+def handle_ki67(string):
+    if type(string) != str: return string
+    if is_date(string): return pd.NA
+
+    # Find largest number in string
+    nums = [int(x) for x in re.findall(r'\d+', string)]
+    if len(nums) == 0: return pd.NA
+    return max(nums)
+
+
 
 def histopatological_degree_to_int(degree: str):
     values = ["null", "gx", "g1", "g2", "g3", "g4"]
@@ -41,17 +67,8 @@ def preprocessing(df: pd.DataFrame):
     df["Stage"] = df["Stage"].apply(clean_stage)
     df["Basic_stage"] = df["Basic_stage"].map(cancer_basic_stage_map)
 
+    df["KI67_protein"] = df["KI67_protein"].apply(handle_ki67)
+    df['KI67_protein'].fillna((df['KI67_protein'].mean()), inplace=True)
 
 if __name__ == "__main__":
     preprocessing(pd.read_csv("data/train.feats.csv"))
-
-
-
-
-
-
-
-
-
-
-
