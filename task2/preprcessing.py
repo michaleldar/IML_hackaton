@@ -247,6 +247,7 @@ def preprocessing_train(df: pd.DataFrame, labels: pd.DataFrame, multi_label=True
         df["Location_of_distal_metastases"] = labels["Location_of_distal_metastases"]
     else:
         df["Tumor_size"] = labels["Tumor_size"]
+        df = df[df["Tumor_size"] <= 50]
     df = df.groupby(by=['idhushed_internalpatientid']).first()
 
     if multi_label:
