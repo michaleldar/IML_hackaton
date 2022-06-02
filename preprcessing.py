@@ -52,12 +52,13 @@ def clean_stage(string):
 
 def preprocessing(df: pd.DataFrame):
 
+    # Standardize column names
+    df = df.rename(columns={col: re.sub(r'[^\x00-\x7F]+','', col).strip().replace(' ','_').replace('-','') for col in df.columns})
     # Remove duplicate entries - leave one row per patient and date
     df = pd.get_dummies(df, prefix=["Form_Name"])
     df = df.groupby(by=['Diagnosis_date', 'idhushed_internalpatientid']).first()
 
 
-    df = df.rename(columns={col: re.sub(r'[^\x00-\x7F]+','', col).strip().replace(' ','_').replace('-','') for col in df.columns})
     # Convert Ivi_Lymphovascular_invasion to boolean
     df["Ivi_Lymphovascular_invasion"] = df["Ivi_Lymphovascular_invasion"].apply(string2boolean)
     # Convert Histopatological degree to int (greater should be more correlated to cancer)
