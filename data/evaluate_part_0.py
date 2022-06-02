@@ -100,16 +100,20 @@ if __name__ == "__main__":
     # Start computation
     gold_labels = parse_df_labels(pd.read_csv(gold_fn, keep_default_na = False))
     pred_labels = parse_df_labels(pd.read_csv(pred_fn, keep_default_na = False))
-    assert(gold_labels["resp"] == pred_labels["resp"])
 
+    # make sure that the same label is annotated in pred and gold
+    assert(gold_labels["resp"] == pred_labels["resp"])
     enc = Encode_Multi_Hot()
     gold_vals = gold_labels["vals"]
     pred_vals = pred_labels["vals"]
-    assert(len(gold_vals) == len(pred_vals))
-    enc.fit(gold_vals)
 
-    gold_multi_hot = [enc.enc(val) for val in gold_vals]
-    pred_multi_hot = [enc.enc(val) for val in pred_vals]
+    # make sure pred and gold annotate the same # of features
+    assert(len(gold_vals) == len(pred_vals))
+    enc.fit(gold_vals + pred_vals)
+
+
+    gold_multi_hot = np.array([enc.enc(val) for val in gold_vals])
+    pred_multi_hot = np.array([enc.enc(val) for val in pred_vals])
 
     # Print micro-macro f1
     macro_f1 = f1_score(y_true = gold_multi_hot,
