@@ -2,6 +2,7 @@ import sklearn.linear_model
 from plotly import subplots
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LinearRegression
+from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import RidgeCV
 from sklearn.ensemble import RandomForestClassifier
 from skmultilearn.ensemble import RakelD
@@ -87,10 +88,15 @@ if __name__ == '__main__':
     X = pd.read_csv("data/train.feats.csv")
     y = pd.read_csv("data/train.labels.0.csv")
 
-    train_X = X.sample(frac=0.5, random_state=12344)
-    train_y = y.sample(frac=0.5, random_state=12344)
+    ids = X["id-hushed_internalpatientid"].unique()
+    train_inds = np.random.choice(ids.shape[0], ids.shape[0] // 2, replace=False)
+    train_ids = ids[train_inds]
+    train_X = X[X["id-hushed_internalpatientid"].isin(train_ids)]
+    train_y = y.loc[train_X.index]
     test_X = X.drop(train_X.index)
     test_y = y.drop(train_y.index)
+    train_X = train_X[~train_X["id-hushed_internalpatientid"].isin(test_X["id-hushed_internalpatientid"].unique())]
+    train_y = train_y.loc[train_X.index]
 
     # X, y = preprocessing_train(pd.read_csv("data/train.feats.csv"), pd.read_csv("data/train.labels.0.csv"))
     # train_X, test_X, train_y, test_y = train_test_split(X,y,test_size=0.5, random_state=42)
@@ -103,10 +109,19 @@ if __name__ == '__main__':
         base_classifier = RandomForestClassifier(),
         base_classifier_require_dense=[True, True]
     )
+    lr = RandomForestClassifier()
+    lr.fit(train_X, train_y)
     rk.fit(train_X, train_y)
+    for col in test_X.columns:
+        if col not in train_X.columns:
+            test_X.drop([col], inplace=True, axis=1)
     pred = rk.predict(test_X)
     y_gold = pd.DataFrame()
-    y_pred = pd.DataFrame.sparse.from_spmatrix(pred, columns=train_y.columns).sparse.to_dense()
+    # y_pred = pd.DataFrame.sparse.from_spmatrix(pred, columns=train_y.columns).sparse.to_dense()
+    y_pred = pd.DataFrame()
+    for column in train_y.columns:
+        lr.fit(train_X, train_y[column])
+        y_pred[column] = lr.predict(test_X)
 
     y_pred["prediction"] = y_pred.apply(lambda x: str([c for c in x.index if x[c] > 0]), axis=1)
     y_gold["prediction"] = test_y[test_y.columns[0]]
@@ -115,11 +130,16 @@ if __name__ == '__main__':
 
 
     y = pd.read_csv("data/train.labels.1.csv")
-    train_X = X.sample(frac=0.5, random_state=42)
-    train_y = y.sample(frac=0.5, random_state=42)
+    ids = X["id-hushed_internalpatientid"].unique()
+    train_inds = np.random.choice(ids.shape[0], ids.shape[0] // 2, replace=False)
+    train_ids = ids[train_inds]
+    train_X = X[X["id-hushed_internalpatientid"].isin(train_ids)]
+    train_y = y.loc[train_X.index]
     test_X = X.drop(train_X.index)
     test_y = y.drop(train_y.index)
-
+    train_X = train_X[~train_X["id-hushed_internalpatientid"].isin(test_X["id-hushed_internalpatientid"].unique())]
+    train_y = train_y.loc[train_X.index]
+    
     # X, y = preprocessing_train(pd.read_csv("data/train.feats.csv"), pd.read_csv("data/train.labels.0.csv"))
     # train_X, test_X, train_y, test_y = train_test_split(X,y,test_size=0.5, random_state=42)
     train_X, train_y = preprocessing_train(train_X, train_y, False)
