@@ -128,30 +128,40 @@ def histological_diagnosis_noninvasive(string):
 
 
 def BIOPSY_surgery(string):
+    if not string:
+        return 0
     if "biopsy" in string.lower():
         return 1
     return 0
 
 
 def LUMPECTOMY_surgery(string):
+    if not string:
+        return 0
     if "lumpectomy" in string.lower() or "excision" in string.lower() or "exc." in string.lower():
         return 1
     return 0
 
 
 def MASTECTOMY_surgery(string):
+    if not string:
+        return 0
     if "mastectomy" in string.lower():
         return 1
     return 0
 
 
 def QUADRANTECTOMY_surgery(string):
+    if not string:
+        return 0
     if "quadrantectomy" in string.lower():
         return 1
     return 0
 
 
 def OOPHORECTOMY_surgery(string):
+    if not string:
+        return 0
     if "oophorectomy" in string.lower():
         return 1
     return 0
@@ -225,7 +235,7 @@ def preprocessing(df: pd.DataFrame):
     df["N_lymph_nodes_mark_(TNM)"] = df["N_lymph_nodes_mark_(TNM)"].apply(lymph_nodes_mark)
     df["M_metastases_mark_(TNM)"] = df["M_metastases_mark_(TNM)"].apply(metastases_mark)
 
-    df[['Surgery_date1','Surgery_date2', 'Surgery_date3', 'Diagnosis_date']] = df[['Surgery_date1','Surgery_date2', 'Surgery_date3', 'Diagnosis_date']].apply(pd.to_datetime)
+    df[['Surgery_date1', 'Surgery_date2', 'Surgery_date3', 'Diagnosis_date']] = df[['Surgery_date1','Surgery_date2', 'Surgery_date3', 'Diagnosis_date']].apply(pd.to_datetime)
     df['Surgery_date1_diff'] = (df['Surgery_date1'] - df['Diagnosis_date']).dt.days
     df['Surgery_date2_diff'] = (df['Surgery_date2'] - df['Diagnosis_date']).dt.days
     df['Surgery_date3_diff'] = (df['Surgery_date3'] - df['Diagnosis_date']).dt.days
@@ -279,4 +289,4 @@ def preprocessing(df: pd.DataFrame):
 
 
 if __name__ == "__main__":
-    preprocessing(pd.read_csv("data/train.feats.csv"))
+    preprocessing(pd.read_csv("../data/train.feats.csv"))

@@ -3,6 +3,8 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 import numpy as np
 
+from task2.preprcessing import preprocessing
+
 
 def vizualization_for_features(X: pd.DataFrame):
     pca = PCA(n_components=X.shape[1]).fit(X)
@@ -16,5 +18,7 @@ def vizualization_for_features(X: pd.DataFrame):
 if __name__ == '__main__':
     features = pd.read_csv("../data/train.feats.csv")
     y = pd.read_csv("../data/train.labels.0.csv")
-    train_X, train_y, test_x, test_y = train_test_split(features, y, stratify=y)
-    vizualization_for_features(train_X)
+    train_X, train_y, test_x, test_y = train_test_split(features, y)
+
+    # vizualization_for_features(train_X)
+    preprocessing(train_X)
