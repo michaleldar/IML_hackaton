@@ -123,12 +123,18 @@ if __name__ == '__main__':
     pred = lr.predict(test_X)
     print(sklearn.metrics.mean_squared_error(pred, test_y))
 
-    print(f"Num of features: {X.shape[1]}")
-    features_arr = list(range(1, 45))
-    errs = [10]
-    for i in features_arr:
-        est = RFE(lr, n_features_to_select=i)
-        est.fit(train_X, train_y)
-        pred = est.predict(test_X)
-        errs.append(sklearn.metrics.mean_squared_error(pred, test_y))
-    print(f"Best error: {errs[np.argmin(errs)]} is for {np.argmin(errs)} num of features")
+    est = RFE(lr, n_features_to_select=36)
+    est.fit(train_X, train_y)
+    pred = est.predict(test_X)
+    gold = pd.DataFrame(test_y)
+    print(sklearn.metrics.mean_squared_error(pred, test_y))
+
+    # print(f"Num of features: {X.shape[1]}")
+    # features_arr = list(range(1, 45))
+    # errs = [10]
+    # for i in features_arr:
+    #     est = RFE(lr, n_features_to_select=i)
+    #     est.fit(train_X, train_y)
+    #     pred = est.predict(test_X)
+    #     errs.append(sklearn.metrics.mean_squared_error(pred, test_y))
+    # print(f"Best error: {errs[np.argmin(errs)]} is for {np.argmin(errs)} num of features")
