@@ -49,7 +49,7 @@ def is_date(string, fuzzy=False):
 
 
 def date_diff(str1, str2):
-    if str1 is None or str2 is None:
+    if pd.isna(str1) or pd.isna(str2):
         return -1
     from dateutil.parser import parse
     try:
@@ -89,7 +89,7 @@ def clean_stage(string):
 def tumor_mark(string):
     values = ["tx", "tis", "t0", "t1", "t1mic", "t1a", "t1b", "t1c", "t1d", "t2", "t2a", "t2b", "t2c",
               "t2d", "t3", "t3a", "t3b", "t3c", "t3d", "t4", "t4a", "t4b", "t4c", "t4d"]
-    if string is None: return -1
+    if pd.isna(string): return -1
     string = string.lower()
     for idx, val in enumerate(values):
         if string == val:
@@ -104,7 +104,7 @@ def tumor_mark(string):
 def lymph_nodes_mark(string):
     values = ["n", "n1", "n1a", "n1b", "n1c", "n1d", "n2", "n2a", "n2b", "n2c", "n2d", "n3", "n3a",
               "n3b", "n3c", "n3d", "n3d", "n4", "n4a", "n4b", "n4c", "n4d"]
-    if not string:
+    if pd.isna(string):
         return -1
     string = string.lower()
     for idx, val in enumerate(values):
@@ -119,7 +119,7 @@ def lymph_nodes_mark(string):
 
 def metastases_mark(string):
     values = ["m0", "mo", "m1", "m1a", "m1b"]
-    if not string:
+    if pd.isna(string):
         return -1
     string = string.lower()
     for idx, val in enumerate(values):
@@ -157,7 +157,7 @@ def histological_diagnosis_noninvasive(string):
 
 
 def BIOPSY_surgery(string):
-    if not string:
+    if pd.isna(string):
         return 0
     if "biopsy" in string.lower():
         return 1
@@ -165,7 +165,7 @@ def BIOPSY_surgery(string):
 
 
 def LUMPECTOMY_surgery(string):
-    if not string:
+    if pd.isna(string):
         return 0
     if "lumpectomy" in string.lower() or "excision" in string.lower() or "exc." in string.lower():
         return 1
@@ -173,7 +173,7 @@ def LUMPECTOMY_surgery(string):
 
 
 def MASTECTOMY_surgery(string):
-    if not string:
+    if pd.isna(string):
         return 0
     if "mastectomy" in string.lower():
         return 1
@@ -181,7 +181,7 @@ def MASTECTOMY_surgery(string):
 
 
 def QUADRANTECTOMY_surgery(string):
-    if not string:
+    if pd.isna(string):
         return 0
     if "quadrantectomy" in string.lower():
         return 1
@@ -189,7 +189,7 @@ def QUADRANTECTOMY_surgery(string):
 
 
 def OOPHORECTOMY_surgery(string):
-    if not string:
+    if pd.isna(string):
         return 0
     if "oophorectomy" in string.lower():
         return 1
@@ -218,12 +218,12 @@ def clean_er_pr(string):
     if floats[0] > 0: return 1
     return 0
 
-
 def string2set(string):
     lst = ast.literal_eval(string)
     return set(lst)
 
 def preprocessing_train(df: pd.DataFrame, labels: pd.DataFrame):
+
     # Standardize column names
     df = df.rename(columns={col: re.sub(r'[^\x00-\x7F]+','', col).strip().replace(' ','_').replace('-','') for col in df.columns})
     labels = labels.rename(columns={col: re.sub(r'[^\x00-\x7F]+','', col).strip().replace(' ','_').replace('-','') for col in labels.columns})
