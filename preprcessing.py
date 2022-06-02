@@ -130,9 +130,9 @@ def preprocessing(df: pd.DataFrame):
     df = df.rename(columns={col: re.sub(r'[^\x00-\x7F]+','', col).strip().replace(' ','_').replace('-','') for col in df.columns})
     # Remove duplicate entries - leave one row per patient and date
     df = pd.get_dummies(df, columns=["Form_Name"])
-    df = df.groupby(by=['Diagnosis_date', 'idhushed_internalpatientid']).first()
+    df = df.groupby(by=['idhushed_internalpatientid']).first()
 
-    columns_to_remove = ["Histological_diagnosis"]
+    columns_to_remove = ["Histological_diagnosis", "Form_Name"]
 
     # Convert Ivi_Lymphovascular_invasion to boolean
     df["Ivi_Lymphovascular_invasion"] = df["Ivi_Lymphovascular_invasion"].apply(string2boolean)
