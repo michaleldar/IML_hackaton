@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 
-from preprcessing import preprocessing
+from preprcessing import preprocessing_train, preprocessing_test_groupby, preprocessing_test
 
 
 def vizualization_for_features(X: pd.DataFrame):
@@ -52,8 +52,19 @@ def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = "."):
 
 
 if __name__ == '__main__':
-    X, y = preprocessing(pd.read_csv("../data/train.feats.csv"), pd.read_csv("../data/train.labels.0.csv"))
-    train_X, test_X, train_y, test_y = train_test_split(X,y,test_size=0.5, random_state=42)
+
+    X = pd.read_csv("data/train.feats.csv")
+    y = pd.read_csv("data/train.labels.0.csv")
+
+    train_X = X.sample(frac=0.5, random_state=42)
+    train_y = y.sample(frac=0.5, random_state=42)
+    test_X = X.drop(train_X.index)
+    test_y = y.drop(train_y.index)
+
+    # X, y = preprocessing_train(pd.read_csv("data/train.feats.csv"), pd.read_csv("data/train.labels.0.csv"))
+    # train_X, test_X, train_y, test_y = train_test_split(X,y,test_size=0.5, random_state=42)
+    train_X, train_y = preprocessing_train(train_X, train_y)
+    test_X = preprocessing_test(test_X)
 
     # vizualization_for_features(train_X)
     # feature_evaluation(train_X, train_y)
@@ -61,14 +72,15 @@ if __name__ == '__main__':
     y_pred = pd.DataFrame()
     y_gold = pd.DataFrame()
 
-    for column in test_y.columns:
+    for column in train_y.columns:
         lr.fit(train_X, train_y[column])
         y_pred[column] = lr.predict(test_X)
         # pd.DataFrame(y_pred).to_csv("./y_pred.csv", index=False, header=False)
         # pd.DataFrame(test_y["LYM - Lymph nodes"]).to_csv("y_gold.csv", index=False, header=False)
         # print(lr.score(test_X, test_y["LYM - Lymph nodes"]))
     y_pred["prediction"] = y_pred.apply(lambda x: str([c for c in x.index if x[c] > 0]), axis=1)
-    y_gold["prediction"] = test_y.apply(lambda x: str([c for c in x.index if x[c] > 0]), axis=1)
+    # y_pred = pd.merge(test_y, y_pred, how="left", on="id")
+    y_gold["prediction"] = test_y[test_y.columns[0]] #test_y.apply(lambda x: str([c for c in x.index if x[c] > 0]), axis=1)
     y_pred["prediction"].to_csv("./y_pred.csv", header=False, index=False)
     y_gold["prediction"].to_csv("./y_gold.csv", header=False, index=False)
     empty = ['[]'] * y_gold.shape[0]
