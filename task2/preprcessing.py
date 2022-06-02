@@ -1,6 +1,7 @@
 import pandas as pd
 import re
 import ast
+import numpy as np
 from sklearn.model_selection import train_test_split
 
 LOCATIONS = {'ADR - Adrenals',
@@ -238,9 +239,17 @@ def preprocessing_train(df: pd.DataFrame, labels: pd.DataFrame):
     df["Form_Name"] = df["Form_Name"].map(form_name_map)
     df = pd.get_dummies(df, columns=["Form_Name"])
 
+    for col in df.columns:
+        if "Form_Name" in col:
+            df[col] = np.where(df[col] == 0, None, 1)
+
     df["Location_of_distal_metastases"] = labels["Location_of_distal_metastases"]
     df = df.groupby(by=['idhushed_internalpatientid']).first()
     labels = df["Location_of_distal_metastases"]
+
+    for col in df.columns:
+        if "Form_Name" in col:
+            df[col] = np.where(df[col] is None, 0, 1)
 
     # Turn labels into matrix
     labels = labels.apply(string2set)

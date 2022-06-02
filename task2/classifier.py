@@ -53,8 +53,8 @@ def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = "."):
 
 if __name__ == '__main__':
 
-    X = pd.read_csv("data/train.feats.csv")
-    y = pd.read_csv("data/train.labels.0.csv")
+    X = pd.read_csv("../data/train.feats.csv")
+    y = pd.read_csv("../data/train.labels.0.csv")
 
     train_X = X.sample(frac=0.5, random_state=42)
     train_y = y.sample(frac=0.5, random_state=42)
