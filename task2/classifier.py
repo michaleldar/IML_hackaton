@@ -1,6 +1,6 @@
 import sklearn.linear_model
 from sklearn.decomposition import PCA
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestClassifier
 
 from sklearn.model_selection import train_test_split
@@ -73,3 +73,10 @@ if __name__ == '__main__':
     y_gold["prediction"].to_csv("./y_gold.csv", header=False, index=False)
     empty = ['[]'] * y_gold.shape[0]
     pd.DataFrame(empty).to_csv('./y_empty.csv', header=False, index=False)
+
+    X, y = preprocessing(pd.read_csv("../data/train.feats.csv"), pd.read_csv("../data/train.labels.1.csv"), multi_label=False)
+    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.5, random_state=42)
+    lr = LinearRegression()
+    lr.fit(train_X, train_y)
+    lr.predict(test_X)
+    print(lr.score(test_X, test_y))

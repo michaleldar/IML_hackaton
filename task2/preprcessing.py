@@ -216,12 +216,13 @@ def clean_er_pr(string):
     if floats[0] > 0: return 1
     return 0
 
+
 def string2set(string):
     lst = ast.literal_eval(string)
     return set(lst)
 
-def preprocessing(df: pd.DataFrame, labels: pd.DataFrame):
 
+def preprocessing(df: pd.DataFrame, labels: pd.DataFrame, multi_label=True):
     # Standardize column names
     df = df.rename(columns={col: re.sub(r'[^\x00-\x7F]+','', col).strip().replace(' ','_').replace('-','') for col in df.columns})
     labels = labels.rename(columns={col: re.sub(r'[^\x00-\x7F]+','', col).strip().replace(' ','_').replace('-','') for col in labels.columns})
