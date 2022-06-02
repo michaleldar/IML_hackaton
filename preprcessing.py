@@ -99,7 +99,6 @@ def metastases_mark(string):
     return last_idx
 
 
-
 def histological_diagnosis_invasive(string):
     words = string.lower().split(" ")
     words = [w.replace(',', '') for w in words]
@@ -121,6 +120,36 @@ def histological_diagnosis_noninvasive(string):
         if "nos" in words:
             return 0.5
         return 0
+    return 0
+
+
+def BIOPSY_surgery(string):
+    if "biopsy" in string.lower():
+        return 1
+    return 0
+
+
+def LUMPECTOMY_surgery(string):
+    if "lumpectomy" in string.lower():
+        return 1
+    return 0
+
+
+def MASTECTOMY_surgery(string):
+    if "mastectomy" in string.lower():
+        return 1
+    return 0
+
+
+def QUADRANTECTOMY_surgery(string):
+    if "quadrantectomy" in string.lower():
+        return 1
+    return 0
+
+
+def OOPHORECTOMY_surgery(string):
+    if "oophorectomy" in string.lower():
+        return 1
     return 0
 
 
@@ -157,6 +186,14 @@ def preprocessing(df: pd.DataFrame):
     df["T_Tumor_mark_(TNM)"] = df["T_Tumor_mark_(TNM)"].apply(tumor_mark)
     df["N_lymph_nodes_mark_(TNM)"] = df["N_lymph_nodes_mark_(TNM)"].apply(lymph_nodes_mark)
     df["M_metastases_mark_(TNM)"] = df["M_metastases_mark_(TNM)"].apply(metastases_mark)
+
+    # first surgery name
+    df["BIOPSY_surgery"] = df["Surgery_name1"].apply(BIOPSY_surgery)
+    df["LUMPECTOMY_surgery"] = df["Surgery_name1"].apply(LUMPECTOMY_surgery)
+    df["MASTECTOMY_surgery"] = df["Surgery_name1"].apply(MASTECTOMY_surgery)
+    df["QUADRANTECTOMY_surgery"] = df["Surgery_name1"].apply(QUADRANTECTOMY_surgery)
+    df["OOPHORECTOMY_surgery"] = df["Surgery_name1"].apply(OOPHORECTOMY_surgery)
+
 
 
 if __name__ == "__main__":
