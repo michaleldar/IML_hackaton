@@ -2,6 +2,10 @@ import pandas as pd
 import re
 
 
+one_hot_cols = ['Hospital', 'Margin_Type']
+cols_to_drop = ['Margin_Type_without', 'User_Name', 'Side', 'Tumor_depth', 'Nodes_exam',
+                'surgery_before_or_afterActivity_date', 'surgery_before_or_afterActual_activity']
+
 def string2boolean(string, default=0):
     POSITIVE_STRINGS = {"pos", "+", "extensive", "micropapillary variant", "yes", "(+)", "חיובי", "jhuch"}
     NEGATIVE_STRINGS = {"none", "-", "no", "(-)", "neg", "not", "שלילי", "akhkh"}
@@ -153,12 +157,44 @@ def OOPHORECTOMY_surgery(string):
     return 0
 
 
+def divide_nodes(positive, exam):
+    if exam == 0: return 0
+    return positive / exam
+
+
+def clean_er_pr(string):
+    if pd.isna(string): return 0
+    string = string.lower()
+    if "po" in string: return 1
+    if "strong" in string: return 1
+    if "high" in string: return 1
+    if "חיובי" in string: return 1
+    if "neg" in string: return 0
+    if "+" in string: return 1
+    if string == "-": return 0
+    if string == "(-)": return 0
+    if "<1" in string: return 0
+    floats = [float(s) for s in re.findall(r"[+-]? (?:\d+(?:\.\d)?|\.\d+)(?:[eE][+-]?\d+)?", string)]
+    if len(floats) == 0: return 0
+    if floats[0] > 0: return 1
+    return 0
+
+
 def preprocessing(df: pd.DataFrame):
 
     # Standardize column names
     df = df.rename(columns={col: re.sub(r'[^\x00-\x7F]+','', col).strip().replace(' ','_').replace('-','') for col in df.columns})
     # Remove duplicate entries - leave one row per patient and date
+
+    form_name_map = {'אנמנזה סיעודית': 'nursing_anamnesis',
+                     'אומדן סימפטומים ודיווח סיעודי': 'symptoms_eval_nursing_report',
+                     'אנמנזה רפואית': 'medical_anamnesis', 'אנמנזה סיעודית קצרה': 'nursing_anamnesis_short',
+                     'ביקור במרפאה': 'clinic_visit', 'אנמנזה רפואית המטו-אונקולוגית': 'onco_anamnesis',
+                     'ביקור במרפאה קרינה': 'radiation_clinic_visit',
+                     'ביקור במרפאה המטו-אונקולוגית': 'onco_clinic_visit'}
+    df["Form_Name"] = df["Form_Name"].map(form_name_map)
     df = pd.get_dummies(df, columns=["Form_Name"])
+
     df = df.groupby(by=['idhushed_internalpatientid']).first()
 
     columns_to_remove = ["Histological_diagnosis", "Form_Name"]
@@ -215,6 +251,31 @@ def preprocessing(df: pd.DataFrame):
     df["OOPHORECTOMY_surgery_3"] = df["Surgery_name3"].apply(OOPHORECTOMY_surgery)
 
 
+
+    lymphatic_penetration_map = {'L0 - No Evidence of invasion': 0, 'Null': 0, 'LI - Evidence of invasion': 1,
+                                 'L1 - Evidence of invasion of superficial Lym.': 2,
+                                 'L2 - Evidence of invasion of depp Lym.': 3}
+    margin_type_map = {'ללא': 'without', 'נקיים': 'clean', 'נגועים': 'contaminated'}
+    df["Lymphatic_penetration"] = df["Lymphatic_penetration"].map(lymphatic_penetration_map)
+    df["Margin_Type"] = df["Margin_Type"].map(margin_type_map)
+
+    df = pd.get_dummies(df, columns=one_hot_cols)
+
+    # Tumor side
+    df["Side_left"] = df["Side"].isin({"שמאל", "דו צדדי"}).astype(int)
+    df["Side_right"] = df["Side"].isin({"ימין", "דו צדדי"}).astype(int)
+
+    # Tumor width
+    df["Tumor_width"] = df["Tumor_width"].fillna(0)
+
+    # Positive nodes ratio
+    df["Nodes_exam"] = df["Nodes_exam"].fillna(0)
+    df["Positive_nodes"] = df["Positive_nodes"].fillna(0)
+    df['Positive_node_rate'] = df.apply(lambda x: divide_nodes(x.Positive_nodes, x.Nodes_exam), axis=1)
+
+    # ER and PR
+    df['er'] = df['er'].apply(clean_er_pr)
+    df['pr'] = df['pr'].apply(clean_er_pr)
 
 
 if __name__ == "__main__":
