@@ -246,14 +246,14 @@ def preprocessing_train(df: pd.DataFrame, labels: pd.DataFrame, multi_label=True
     if multi_label:
         df["Location_of_distal_metastases"] = labels["Location_of_distal_metastases"]
     else:
-        df["Tumor_size"] = labels["Tumor_size"]
-        df = df[df["Tumor_size"] <= 50]
+        df["vals"] = labels["Tumor_size"]
+        df = df[df["vals"] <= 50]
     df = df.groupby(by=['idhushed_internalpatientid']).first()
 
     if multi_label:
         labels = df["Location_of_distal_metastases"]
     else:
-        labels = df["Tumor_size"]
+        labels = df["vals"]
 
     for col in df.columns:
         if "Form_Name" in col:
@@ -270,7 +270,7 @@ def preprocessing_train(df: pd.DataFrame, labels: pd.DataFrame, multi_label=True
     if multi_label:
         df.drop(["Location_of_distal_metastases"], inplace=True, axis=1)
     else:
-        df.drop(["Tumor_size"], inplace=True, axis=1)
+        df.drop(["vals"], inplace=True, axis=1)
 
     # Convert Ivi_Lymphovascular_invasion to boolean
     df["Ivi_Lymphovascular_invasion"] = df["Ivi_Lymphovascular_invasion"].apply(string2boolean)

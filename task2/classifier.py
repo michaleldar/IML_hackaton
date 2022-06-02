@@ -3,7 +3,7 @@ from plotly import subplots
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import RidgeCV
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from skmultilearn.ensemble import RakelD
 from sklearn.feature_selection import RFE
 
@@ -114,7 +114,7 @@ if __name__ == '__main__':
     y_gold["prediction"].to_csv("./y_gold.csv", header=False, index=False)
 
 
-    y = pd.read_csv("data/train.labels.1.csv")
+    y = pd.read_csv("../data/train.labels.1.csv")
     train_X = X.sample(frac=0.5, random_state=42)
     train_y = y.sample(frac=0.5, random_state=42)
     test_X = X.drop(train_X.index)
@@ -135,8 +135,13 @@ if __name__ == '__main__':
     est = RFE(lr, n_features_to_select=36)
     est.fit(train_X, train_y)
     pred = est.predict(test_X)
-    gold = pd.DataFrame(test_y)
+    pd.DataFrame(pred).to_csv("./y_pred_tumur_size.csv", header=["Tumor_size"], index=False)
+    gold = pd.DataFrame(test_y["אבחנה-Tumor size"])
+    gold.to_csv("./y_gold_tumor_size.csv", header=["Tumor_size"], index=False)
     print(sklearn.metrics.mean_squared_error(pred, test_y))
+
+    rf_tumor_size = RandomForestRegressor(n_estimators=10)
+    rf_tumor_size.fit(train_X, train_y)
 
     # print(f"Num of features: {X.shape[1]}")
     # features_arr = list(range(1, 45))
