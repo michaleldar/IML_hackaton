@@ -18,6 +18,12 @@ def histopatological_degree_to_int(degree: str):
             return idx
     return 0
 
+def clean_stage(string):
+    if string == 'LA': return -1
+    if string == 'Not yet Established': return 0
+    if pd.isna(string): return 0
+    return int(re.sub("[a-zA-Z]+", "", string))
+
 
 def preprocessing(df: pd.DataFrame):
     df = df.rename(columns={col: re.sub(r'[^\x00-\x7F]+','', col).strip().replace(' ','_').replace('-','') for col in df.columns})
@@ -28,6 +34,24 @@ def preprocessing(df: pd.DataFrame):
     # Num of surgeries in int (Na = 0)
     df['Surgery sum'] = df['Surgery sum'].fillna(0)
 
+    df = df[(df.Age > 0)]
+    df = df[(df.Age < 120)]
+
+    cancer_basic_stage_map = {'Null': 0, 'c - Clinical': 1, 'p - Pathological': 2, 'r - Reccurent': 3}
+    df["Stage"] = df["Stage"].apply(clean_stage)
+    df["Basic_stage"] = df["Basic_stage"].map(cancer_basic_stage_map)
+
 
 if __name__ == "__main__":
     preprocessing(pd.read_csv("data/train.feats.csv"))
+
+
+
+
+
+
+
+
+
+
+
