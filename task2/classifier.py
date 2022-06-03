@@ -2,17 +2,13 @@ import sklearn.linear_model
 from plotly import subplots
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LinearRegression
-from sklearn.naive_bayes import GaussianNB
-from sklearn.linear_model import RidgeCV
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, BaggingRegressor, BaggingClassifier
 from skmultilearn.ensemble import RakelD
 from sklearn.feature_selection import RFE
 
-from sklearn.model_selection import train_test_split
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
-import plotly.subplots
 
 from preprcessing import preprocessing_train, preprocessing_test
 
@@ -82,9 +78,7 @@ def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = "."):
             #     yaxis_title="Price",
             #     xaxis_title= "feature values").show()
 
-
-if __name__ == '__main__':
-
+def model_selection():
     X = pd.read_csv("data/train.feats.csv")
     y = pd.read_csv("data/train.labels.0.csv")
 
@@ -109,19 +103,19 @@ if __name__ == '__main__':
         base_classifier = RandomForestClassifier(),
         base_classifier_require_dense=[True, True]
     )
-    lr = RandomForestClassifier()
-    lr.fit(train_X, train_y)
+    # lr = RandomForestClassifier()
+    # lr.fit(train_X, train_y)
     rk.fit(train_X, train_y)
     for col in test_X.columns:
         if col not in train_X.columns:
             test_X.drop([col], inplace=True, axis=1)
     pred = rk.predict(test_X)
     y_gold = pd.DataFrame()
-    # y_pred = pd.DataFrame.sparse.from_spmatrix(pred, columns=train_y.columns).sparse.to_dense()
-    y_pred = pd.DataFrame()
-    for column in train_y.columns:
-        lr.fit(train_X, train_y[column])
-        y_pred[column] = lr.predict(test_X)
+    y_pred = pd.DataFrame.sparse.from_spmatrix(pred, columns=train_y.columns).sparse.to_dense()
+    # y_pred = pd.DataFrame()
+    # for column in train_y.columns:
+    #     lr.fit(train_X, train_y[column])
+    #     y_pred[column] = lr.predict(test_X)
 
     y_pred["prediction"] = y_pred.apply(lambda x: str([c for c in x.index if x[c] > 0]), axis=1)
     y_gold["prediction"] = test_y[test_y.columns[0]]
@@ -147,16 +141,37 @@ if __name__ == '__main__':
 
     # X, y = preprocessing_train(pd.read_csv("../data/train.feats.csv"), pd.read_csv("../data/train.labels.1.csv"), multi_label=False)
     # train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.5, random_state=42)
-    lr = LinearRegression()
-    lr.fit(train_X, train_y)
-    pred = lr.predict(test_X)
-    print(sklearn.metrics.mean_squared_error(pred, test_y))
+    preds = []
+    rfc = LinearRegression()
+    rfc.fit(train_X, train_y)
+    # preds.append(lr.predict(test_X))
+    # print(sklearn.metrics.mean_squared_error(pred, test_y))
 
-    est = RFE(lr, n_features_to_select=36)
+    est = RFE(rfc, n_features_to_select=36)
     est.fit(train_X, train_y)
-    pred = est.predict(test_X)
+    preds.append(est.predict(test_X))
     gold = pd.DataFrame(test_y)
-    print(sklearn.metrics.mean_squared_error(pred, test_y))
+    # print(sklearn.metrics.mean_squared_error(pred, test_y))
+
+    rfr = RandomForestRegressor(n_estimators=7)
+    rfr.fit(train_X, train_y)
+    preds.append(rfr.predict(test_X))
+
+    brg = BaggingRegressor(n_estimators=7)
+    brg.fit(train_X, train_y)
+    preds.append(brg.predict(test_X))
+
+    for p in preds:
+        p[p<0] = 0
+
+    pred = np.mean(preds, axis=0)
+    y_pred = pd.DataFrame()
+    y_gold = pd.DataFrame()
+    y_pred["prediction"] = pred
+    y_gold["prediction"] = test_y[test_y.columns[0]]
+    y_pred["prediction"].to_csv("./tumor_size_pred.csv", header=False, index=False)
+    y_gold["prediction"].to_csv("./tumor_size_gold.csv", header=False, index=False)
+    print(sklearn.metrics.mean_squared_error(y_gold, y_pred))
 
     # print(f"Num of features: {X.shape[1]}")
     # features_arr = list(range(1, 45))
@@ -167,3 +182,58 @@ if __name__ == '__main__':
     #     pred = est.predict(test_X)
     #     errs.append(sklearn.metrics.mean_squared_error(pred, test_y))
     # print(f"Best error: {errs[np.argmin(errs)]} is for {np.argmin(errs)} num of features")
+
+if __name__ == '__main__':
+
+    train_X_tumor = pd.read_csv("data/train.feats.csv")
+    train_X_class = pd.read_csv("data/train.feats.csv")
+    train_y_class = pd.read_csv("data/train.labels.0.csv")
+    train_y_tumor = pd.read_csv("data/train.labels.1.csv")
+    test_X = pd.read_csv("data/train.feats.csv")
+
+
+    train_X_class, train_y_class = preprocessing_train(train_X_class, train_y_class)
+    train_X_tumor, train_y_tumor = preprocessing_train(train_X_tumor, train_y_tumor, False)
+    test_X = preprocessing_test(test_X)
+
+    rk = RakelD(
+        base_classifier = RandomForestClassifier(),
+        base_classifier_require_dense=[True, True]
+    )
+
+    rk.fit(train_X_class, train_y_class)
+    for col in test_X.columns:
+        if col not in train_X_class.columns:
+            test_X.drop([col], inplace=True, axis=1)
+    pred = rk.predict(test_X)
+    y_gold = pd.DataFrame()
+    y_pred = pd.DataFrame.sparse.from_spmatrix(pred, columns=train_y_class.columns).sparse.to_dense()
+
+    y_pred["prediction"] = y_pred.apply(lambda x: str([c for c in x.index if x[c] > 0]), axis=1)
+    y_pred["prediction"].to_csv("task2/part1/predictions.csv", header=False, index=False)
+
+
+    preds = []
+    lr = LinearRegression()
+    lr.fit(train_X_tumor, train_y_tumor)
+
+    est = RFE(lr, n_features_to_select=36)
+    est.fit(train_X_tumor, train_y_tumor)
+    preds.append(est.predict(test_X))
+    gold = pd.DataFrame(train_y_tumor)
+
+    rfr = RandomForestRegressor(n_estimators=7)
+    rfr.fit(train_X_tumor, train_y_tumor)
+    preds.append(rfr.predict(test_X))
+
+    brg = BaggingRegressor(n_estimators=7)
+    brg.fit(train_X_tumor, train_y_tumor)
+    preds.append(brg.predict(test_X))
+
+    for p in preds:
+        p[p<0] = 0
+
+    pred = np.mean(preds, axis=0)
+    y_pred = pd.DataFrame()
+    y_pred["prediction"] = pred
+    y_pred["prediction"].to_csv("task2/part2/predictions.csv", header=False, index=False)
