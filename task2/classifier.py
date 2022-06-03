@@ -98,8 +98,11 @@ def model_selection():
     X = pd.read_csv("data/train.feats.csv")
     y = pd.read_csv("data/train.labels.0.csv")
 
-    train_X = X.sample(frac=0.5, random_state=12344)
-    train_y = y.sample(frac=0.5, random_state=12344)
+    ids = X["id-hushed_internalpatientid"].unique()
+    train_inds = np.random.choice(ids.shape[0], ids.shape[0] // 2, replace=False)
+    train_ids = ids[train_inds]
+    train_X = X[X["id-hushed_internalpatientid"].isin(train_ids)]
+    train_y = y.loc[train_X.index]
     test_X = X.drop(train_X.index)
     test_y = y.drop(train_y.index)
 
@@ -129,9 +132,12 @@ def model_selection():
     y_gold["prediction"].to_csv("./y_gold.csv", header=False, index=False)
 
 
-    y = pd.read_csv("../data/train.labels.1.csv")
-    train_X = X.sample(frac=0.5, random_state=42)
-    train_y = y.sample(frac=0.5, random_state=42)
+    y = pd.read_csv("data/train.labels.1.csv")
+    ids = X["id-hushed_internalpatientid"].unique()
+    train_inds = np.random.choice(ids.shape[0], ids.shape[0] // 2, replace=False)
+    train_ids = ids[train_inds]
+    train_X = X[X["id-hushed_internalpatientid"].isin(train_ids)]
+    train_y = y.loc[train_X.index]
     test_X = X.drop(train_X.index)
     test_y = y.drop(train_y.index)
     train_X = train_X[~train_X["id-hushed_internalpatientid"].isin(test_X["id-hushed_internalpatientid"].unique())]
