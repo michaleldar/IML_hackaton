@@ -134,6 +134,8 @@ def metastases_mark(string):
 
 
 def histological_diagnosis_invasive(string):
+    if pd.isna(string):
+        return 0
     words = string.lower().split(" ")
     words = [w.replace(',', '') for w in words]
     if "carcinoma" in string.lower():
@@ -146,6 +148,8 @@ def histological_diagnosis_invasive(string):
 
 
 def histological_diagnosis_noninvasive(string):
+    if pd.isna(string):
+        return 0
     words = string.lower().split(" ")
     words = [w.replace(',', '') for w in words]
     if "carcinoma" in string.lower():
