@@ -249,7 +249,7 @@ if __name__ == '__main__':
     y_pred["prediction"] = y_pred.apply(lambda x: str([c for c in x.index if x[c] > 0]), axis=1)
     y_pred["prediction"].to_csv("../task2/part1/predictions.csv", header=False, index=False)
 
-    rfr = RandomForestRegressor(n_estimators=90, max_depth=9)
+    rfr = RandomForestRegressor(n_estimators=100, max_depth=8)
     rfr.fit(train_X_tumor, train_y_tumor)
 
     pred = rfr.predict(test_X)
