@@ -209,11 +209,6 @@ def _doc_(args):
 
 if __name__ == '__main__':
     args = docopt(__doc__)
-    # train_X_tumor = pd.read_csv("../data/train.feats.csv")
-    # train_X_class = pd.read_csv("../data/train.feats.csv")
-    # train_y_class = pd.read_csv("../data/train.labels.0.csv")
-    # train_y_tumor = pd.read_csv("../data/train.labels.1.csv")
-    # test_X = pd.read_csv("../data/train.feats.csv")
 
     # Parse command line arguments
 
@@ -230,11 +225,6 @@ if __name__ == '__main__':
     train_y_class = pd.read_csv(labels_0)
     train_y_tumor = pd.read_csv(labels_1)
     test_X = pd.read_csv(test_features)
-
-    # train_X = X.sample(frac=0.5, random_state=12344)
-    # train_y = y0.sample(frac=0.5, random_state=12344)
-    # test_X = X.drop(train_X.index)
-    # test_y = y0.drop(train_y.index)
 
 
     train_X_class, train_y_class = preprocessing_train(train_X_class, train_y_class)
@@ -257,30 +247,12 @@ if __name__ == '__main__':
     
 
     y_pred["prediction"] = y_pred.apply(lambda x: str([c for c in x.index if x[c] > 0]), axis=1)
-    y_pred["prediction"].to_csv("task2/part1/predictions.csv", header=False, index=False)
+    y_pred["prediction"].to_csv("../task2/part1/predictions.csv", header=False, index=False)
 
-
-    preds = []
-    lr = LinearRegression()
-    lr.fit(train_X_tumor, train_y_tumor)
-
-    est = RFE(lr, n_features_to_select=36)
-    est.fit(train_X_tumor, train_y_tumor)
-    preds.append(est.predict(test_X))
-    gold = pd.DataFrame(train_y_tumor)
-
-    rfr = RandomForestRegressor(n_estimators=7)
+    rfr = RandomForestRegressor(n_estimators=90, max_depth=9)
     rfr.fit(train_X_tumor, train_y_tumor)
-    preds.append(rfr.predict(test_X))
 
-    brg = BaggingRegressor(n_estimators=7)
-    brg.fit(train_X_tumor, train_y_tumor)
-    preds.append(brg.predict(test_X))
-
-    for p in preds:
-        p[p<0] = 0
-
-    pred = np.mean(preds, axis=0)
+    pred = rfr.predict(test_X)
     y_pred = pd.DataFrame()
     y_pred["prediction"] = pred
-    y_pred["prediction"].to_csv("task2/part2/predictions.csv", header=False, index=False)
+    y_pred["prediction"].to_csv("../task2/part2/predictions.csv", header=False, index=False)
