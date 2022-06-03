@@ -1,4 +1,18 @@
+""" Usage:
+    <file-name> --train_feat=GOLD_FILE --test_feat=PRED_FILE --labels0=LABELS0 --labels1=LABELS1[--debug]
+
+Options:
+  --help                           Show this message and exit
+  -i INPUT_FILE --in=INPUT_FILE    Input file
+                                   [default: infile.tmp]
+  -o INPUT_FILE --out=OUTPUT_FILE  Input file
+                                   [default: outfile.tmp]
+  --debug                          Whether to debug
+"""
+from pathlib import Path
+
 import sklearn.linear_model
+from docopt import docopt
 from plotly import subplots
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LinearRegression
@@ -180,13 +194,39 @@ def model_selection():
     #     errs.append(sklearn.metrics.mean_squared_error(pred, test_y))
     # print(f"Best error: {errs[np.argmin(errs)]} is for {np.argmin(errs)} num of features")
 
-if __name__ == '__main__':
 
-    train_X_tumor = pd.read_csv("../data/train.feats.csv")
-    train_X_class = pd.read_csv("../data/train.feats.csv")
-    train_y_class = pd.read_csv("../data/train.labels.0.csv")
-    train_y_tumor = pd.read_csv("../data/train.labels.1.csv")
-    test_X = pd.read_csv("../data/train.feats.csv")
+def _doc_(args):
+    pass
+
+
+if __name__ == '__main__':
+    args = docopt(__doc__)
+    # train_X_tumor = pd.read_csv("../data/train.feats.csv")
+    # train_X_class = pd.read_csv("../data/train.feats.csv")
+    # train_y_class = pd.read_csv("../data/train.labels.0.csv")
+    # train_y_tumor = pd.read_csv("../data/train.labels.1.csv")
+    # test_X = pd.read_csv("../data/train.feats.csv")
+
+    # Parse command line arguments
+
+    train_features = Path(args["--train_feat"])
+    test_features = Path(args["--test_feat"])
+    labels_0 = Path(args["--labels0"])
+    labels_1 = Path(args["--labels1"])
+    out0 = Path(args["--labels0"])
+    out1 = Path(args["--labels1"])
+
+    # read data
+    train_X_tumor = pd.read_csv(train_features)
+    train_X_class = pd.read_csv(train_features)
+    train_y_class = pd.read_csv(labels_0)
+    train_y_tumor = pd.read_csv(labels_1)
+    test_X = pd.read_csv(test_features)
+
+    # train_X = X.sample(frac=0.5, random_state=12344)
+    # train_y = y0.sample(frac=0.5, random_state=12344)
+    # test_X = X.drop(train_X.index)
+    # test_y = y0.drop(train_y.index)
 
 
     train_X_class, train_y_class = preprocessing_train(train_X_class, train_y_class)
