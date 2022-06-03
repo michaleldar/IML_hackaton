@@ -4,7 +4,7 @@ from sklearn.decomposition import PCA
 from sklearn.linear_model import LinearRegression
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import RidgeCV
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, BaggingRegressor
 from skmultilearn.ensemble import RakelD
 from sklearn.feature_selection import RFE
 
@@ -182,11 +182,11 @@ def model_selection():
 
 if __name__ == '__main__':
 
-    train_X_tumor = pd.read_csv("data/train.feats.csv")
-    train_X_class = pd.read_csv("data/train.feats.csv")
-    train_y_class = pd.read_csv("data/train.labels.0.csv")
-    train_y_tumor = pd.read_csv("data/train.labels.1.csv")
-    test_X = pd.read_csv("data/train.feats.csv")
+    train_X_tumor = pd.read_csv("../data/train.feats.csv")
+    train_X_class = pd.read_csv("../data/train.feats.csv")
+    train_y_class = pd.read_csv("../data/train.labels.0.csv")
+    train_y_tumor = pd.read_csv("../data/train.labels.1.csv")
+    test_X = pd.read_csv("../data/train.feats.csv")
 
 
     train_X_class, train_y_class = preprocessing_train(train_X_class, train_y_class)
@@ -207,7 +207,7 @@ if __name__ == '__main__':
     y_pred = pd.DataFrame.sparse.from_spmatrix(pred, columns=train_y_class.columns).sparse.to_dense()
 
     y_pred["prediction"] = y_pred.apply(lambda x: str([c for c in x.index if x[c] > 0]), axis=1)
-    y_pred["prediction"].to_csv("task2/part1/predictions.csv", header=False, index=False)
+    y_pred["prediction"].to_csv("../task2/part1/predictions.csv", header=False, index=False)
 
 
     preds = []
@@ -233,4 +233,4 @@ if __name__ == '__main__':
     pred = np.mean(preds, axis=0)
     y_pred = pd.DataFrame()
     y_pred["prediction"] = pred
-    y_pred["prediction"].to_csv("task2/part2/predictions.csv", header=False, index=False)
+    y_pred["prediction"].to_csv("../task2/part2/predictions.csv", header=False, index=False)
